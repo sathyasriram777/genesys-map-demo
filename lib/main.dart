@@ -41,7 +41,7 @@ class _MapState extends State<Map> {
 
   Future<void> _initializeCameraPosition() async {
     try {
-      debugPrint('Starting location initialization...');
+      debugPrint('Starting location initialization');
       final position = await _determinePosition();
       debugPrint('Location obtained successfully: ${position.latitude}, ${position.longitude}');
       setState(() {
@@ -80,25 +80,25 @@ class _MapState extends State<Map> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return Stack(
         children: [
           MapWidget(
             key: Key('map'),
             onMapCreated: _onMapCreated,
             cameraOptions: CameraOptions(
-              center: _initialCameraPosition ?? Point(
-                coordinates: Position(72.88, 19.11), // Default position
-              ),
+              center: _initialCameraPosition, // Default position
               zoom: 10,
-            )
+            ),
           ),
           if (!_isStyleLoaded)
             const Center(
               child: CircularProgressIndicator(),
             ),
         ],
-      ),
+      );
+      },
     );
   }
 }
@@ -113,14 +113,12 @@ Future<geolocator.Position> _determinePosition() async {
     debugPrint('Location services enabled: $serviceEnabled');
   } catch (e, stackTrace) {
     debugPrint('Error checking location services: $e');
-    debugPrint('Stack trace: $stackTrace');
-    debugPrint('Note: If you are using a simulator, you need to set a simulated location.');
+    debugPrint('Stack trace: $stackTrace');    
     return Future.error('Failed to check location services. If using a simulator, set a simulated location.');
   }
 
   if (!serviceEnabled) {  
-    debugPrint('Location services are disabled.');
-    debugPrint('Note: If you are using a simulator, you need to enable location services in the simulator settings.');
+    debugPrint('Location services are disabled.');    
     return Future.error('Location services are disabled. If using a simulator, enable location services.');
   }
 
@@ -165,7 +163,6 @@ Future<geolocator.Position> _determinePosition() async {
   } catch (e, stackTrace) {
     debugPrint('Error getting current position: $e');
     debugPrint('Stack trace: $stackTrace');
-    debugPrint('Note: If you are using a simulator, make sure you have set a simulated location.');
     return Future.error('Failed to get current position. If using a simulator, set a simulated location.');
   }
 }
